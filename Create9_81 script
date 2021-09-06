@@ -1,0 +1,113 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep='.';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='#.##0,00 kr;-#.##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+Let Start = Now();
+
+In:
+//First 50
+Load @1 As Grid,
+     @2 As B,
+//     Rotate(@1) As G,
+//     Flip(@1) As F,
+     PieceWrap(@1) As G1,
+     PieceWrap(Rotate(@1)) As G2,
+     PieceWrap(Rotate(Rotate(@1))) As G3,
+     PieceWrap(Rotate(Rotate(Rotate(@1)))) As G4,
+     PieceWrap(Flip(@1)) As G5,
+     PieceWrap(Rotate(Flip(@1))) As G6,
+     PieceWrap(Rotate(Rotate(Flip(@1)))) As G7,
+     PieceWrap(Rotate(Rotate(Rotate(Flip(@1))))) As G8,
+     RecNo() As Order
+From C:\Jfo\MinGW\bin\9w.txt
+(txt, codepage is 1252, no labels, delimiter is ' ', no quotes);
+
+Let In = Now();
+
+For j = 1 To 81
+  For i = 1 To 8
+    GG:
+    Load Order & '_$(i)_$(j)' As OO,
+         SubField(G$(i), '#', $(j)) As GG,
+         B As BB
+    Resident In;
+  Next
+Next
+
+Let For = Now();
+
+Left Join (GG)
+Load OO,
+     If(Mid(GG, 1, 1) = Mid(GG, 73, 1), 1, 0) +
+     If(Mid(GG, 2, 1) = Mid(GG, 74, 1), 1, 0) +
+     If(Mid(GG, 3, 1) = Mid(GG, 75, 1), 1, 0) +
+     If(Mid(GG, 4, 1) = Mid(GG, 76, 1), 1, 0) +
+     If(Mid(GG, 5, 1) = Mid(GG, 77, 1), 1, 0) +
+     If(Mid(GG, 6, 1) = Mid(GG, 78, 1), 1, 0) +
+     If(Mid(GG, 7, 1) = Mid(GG, 79, 1), 1, 0) +
+     If(Mid(GG, 8, 1) = Mid(GG, 80, 1), 1, 0) +
+     If(Mid(GG, 9, 1) = Mid(GG, 81, 1), 1, 0) As V1,
+     If(Mid(GG, 1, 1) = Mid(GG, 9, 1), 1, 0) +
+     If(Mid(GG, 10, 1) = Mid(GG, 18, 1), 1, 0) +
+     If(Mid(GG, 19, 1) = Mid(GG, 27, 1), 1, 0) +
+     If(Mid(GG, 28, 1) = Mid(GG, 36, 1), 1, 0) +
+     If(Mid(GG, 37, 1) = Mid(GG, 45, 1), 1, 0) +
+     If(Mid(GG, 46, 1) = Mid(GG, 54, 1), 1, 0) +
+     If(Mid(GG, 55, 1) = Mid(GG, 63, 1), 1, 0) +
+     If(Mid(GG, 64, 1) = Mid(GG, 72, 1), 1, 0) +
+     If(Mid(GG, 73, 1) = Mid(GG, 81, 1), 1, 0) As H1
+Resident GG;
+
+Let VH = Now();
+
+For i = 1 To 9
+  B1:
+  Load OO,
+       Mid(BB, $(i) * 3 - 2, 3) As B1
+  Resident GG;
+Next
+
+Left Join (GG)
+Load OO,
+     Concat(B1) As BB1
+Resident B1
+Group By OO;
+
+Drop Table B1;
+
+Let i=;
+Let j=;
+
+Drop Table In;
+
+Let B1 = Now();
+
+LineOrder:
+Load *,
+     SubField(GGBB, ':', 1) As G,
+     SubField(GGBB, ':', 2) As B
+//     SubField(Rev(GG, BB), ':', 1) As G,
+//     SubField(Rev(GG, BB), ':', 2) As B
+     ;
+Load Rev(GG, BB) As GGBB,
+     //GG & '_' & BB As GB,
+     BB1 As O,
+     V1 As V,
+     H1 As H
+Resident GG; 
+
+Drop Table GG;
+Drop Field GGBB;
+
+Store LineOrder Into L9new1.qvd;
+
+Drop Table LineOrder;
+
+Let Line = Now();
