@@ -1,0 +1,135 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep='.';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='#.##0,00 kr;-#.##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+// Invoice header with date and customer id
+In:
+Load Invoice_id, 
+     Customer_id, 
+     Invoice_date
+From C:\Jfo\Qv\RFM\In\Head.qvd (qvd);
+
+// Invoice rows with amount
+Left Join (In)
+Load Invoice_id, 
+     Amount
+From C:\Jfo\Qv\RFM\In\Row.qvd (qvd);
+
+Drop Field Invoice_id;
+
+MinMaxDates:
+Load Date(Min(Invoice_date)) As MinDate,
+     Date(Max(Invoice_date)) As MaxDate
+Resident In;
+
+Let MinDate = Date(MonthStart(Peek('MinDate')));
+Let MaxDate = Date(MonthEnd(Peek('MaxDate'))+1);
+
+Drop Table MinMaxDates;
+
+// Fields for rfm in R
+RFM:
+Load Customer_id As customer_id,
+     Count(Customer_id) As transaction_count,
+     Sum(Amount) As amount,
+     '$(MaxDate)' - Max(Invoice_date) As recency_days
+Resident In
+Group by Customer_id;
+
+// Remove empty customer_ids
+Inner Join(RFM)
+Load customer_id,
+     1 As dummy
+Resident RFM
+Where amount <> 0;
+
+Drop Field dummy;
+Drop Table In;
+
+Store RFM Into RFM.txt (txt, delimiter is ';');
+
+// Run rfm in R
+Execute "C:\Program Files\R\R-4.0.3\bin\R.exe" CMD BATCH "c:\jfo\qv\RFM\In\RFM.R";
+
+// Read R-log
+R_Log:
+Load @1 As R_Log,
+     RecNo() As R_Row
+From RFM.Rout
+(txt, codepage is 1252, no labels, delimiter is '\t', no quotes);
+
+// Read R-result
+R_RFM:
+Load @2 As customer_id, 
+     @9 As R_RFM,
+     Mid(@9, 1, 1) As R_R,
+     Mid(@9, 2, 1) As R_F,
+     Mid(@9, 3, 1) As R_M
+From c:\jfo\qv\rfm\in\mydata.txt
+(txt, codepage is 1252, no labels, delimiter is '\t', msq, header is 1 lines);
+
+// RFM in QlikView
+Left Join (RFM)
+Load Fractile(recency_days, .8) As r1,
+     Fractile(recency_days, .6) As r2,
+     Fractile(recency_days, .4) As r3,
+     Fractile(recency_days, .2) As r4,
+     
+     Fractile(transaction_count, .8) As f1,
+     Fractile(transaction_count, .6) As f2,
+     Fractile(transaction_count, .4) As f3,
+     Fractile(transaction_count, .2) As f4,
+     
+     Ceil(Fractile(amount, .8)) As m1,
+     Ceil(Fractile(amount, .6)) As m2,
+     Ceil(Fractile(amount, .4)) As m3,
+     Ceil(Fractile(amount, .2)) As m4
+Resident RFM;
+
+Left Join (RFM)
+Load *,
+     Dual(SubField('Bronze Silver Gold Platinum Diamond', ' ', Round((qv_R + qv_F + qv_M) / 3)), 6 - Round((qv_R + qv_F + qv_M) / 3)) As qv_score
+     ;
+Load *,
+     qv_R & qv_F & qv_M As qv_RFM
+     ;
+Load customer_id,
+     If(recency_days > r1, 1,
+      If(recency_days > r2, 2,
+       If(recency_days > r3, 3,
+        If(recency_days > r4, 4, 5)))) As qv_R,
+     If(transaction_count <= f4, 1,
+      If(transaction_count <= f3, 2,
+       If(transaction_count <= f2, 3,
+        If(transaction_count <= f1, 4, 5)))) As qv_F,
+     If(amount > m1, 5,
+      If(amount > m2, 4,
+       If(amount > m3, 3,
+        If(amount > m4, 2, 1)))) As qv_M
+Resident RFM;
+
+// Thresholds for r, f and m
+RFM_q:
+First 1
+Load r1 As R1,
+     r2 As R2,
+     r3 As R3,
+     r4 As R4,
+     f1 As F1,
+     f2 As F2,
+     f3 As F3,
+     f4 As F4,
+     m1 As M1,
+     m2 As M2,
+     m3 As M3,
+     m4 As M4
+Resident RFM;
+
+Drop Fields r1,r2,r3,r4, f1,f2,f3,f4, m1,m2,m3,m4;
