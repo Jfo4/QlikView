@@ -1,0 +1,197 @@
+'Check combinations
+Sub Check
+  Randomize
+  Dim Selected(12), Card(3), p_name(6), p_score(6)
+  Total = 0
+  Tre = ""
+  For i = 1 To 12
+    Selected(i) = vGet("col" & i)
+    If Selected(i) = 1 Then Tre = Tre & "," & i
+    Total = Total + Selected(i)
+  Next
+  If Total = 3 Then
+    TreSel = Split(Tre, ",")
+    For i = 1 To UBound(TreSel)
+      Card(i) = vGet("p" & TreSel(i))
+      vSet "Last" & i, Card(i)
+    Next
+    'Sort Cards by value
+    If vGet("Last1") > vGet("Last2") Then
+      tmp = vGet("Last1")
+      vSet "Last1", vGet("Last2")
+      vSet "Last2", tmp
+    End If
+    If vGet("Last2") > vGet("Last3") Then
+      tmp = vGet("Last2")
+      vSet "Last2", vGet("Last3")
+      vSet "Last3", tmp
+    End If
+    If vGet("Last1") > vGet("Last2") Then
+      tmp = vGet("Last1")
+      vSet "Last1", vGet("Last2")
+      vSet "Last2", tmp
+    End If
+    If vGet("Last2") > vGet("Last3") Then
+      tmp = vGet("Last2")
+      vSet "Last2", vGet("Last3")
+      vSet "Last3", tmp
+    End If
+    Match = 0
+    Same = 0
+    Diff = 0
+    For i = 1 To 4
+      a = Mid(Card(1), i, 1)
+      b = Mid(Card(2), i, 1)
+      c = Mid(Card(3), i, 1)
+      If a = b And b = c Then Same = Same + 1
+      If a <> b And a <> c And b <> c Then Diff = Diff + 1
+      If (a = b And b = c) Or (a <> b And a <> c And b <> c) Then Match = Match + (2 ^ i)
+    Next
+    Player = vGet("Play")
+    If Match = 30 Then '2 + 4 + 8 + 16
+      point = 1
+      If vGet("Hint1") = 1 Then point = .5
+      If vGet("Hint2") = 1 Then point = .1
+      If vGet("Cheat") = 1 Then point = 0
+      vSet "Score" & Player, vGet("Score" & Player) + point
+      'MsgBox "Correct " & vGet("Player" & Player) & ", " & point & " point!" & VbCrLf & VbCrLf & "Number" & VbCrLf & "  Color" & VbCrLf & "    Form" & VbCrLf & "      Fill" & VbCrLf & Card(1) & VbCrLf & Card(2) & VbCrLf & Card(3) & VbCrLf & VbCrLf & Same & " : " & Diff
+      vSet "LastText", "Correct " & vGet("Player" & Player) & VbCrLf & point & " point" & VbCrLf & VbCrLf & Same & " : " & Diff & VbCrLf
+      ActiveDocument.PlaySound "qmem://SETsound/SETyes.wav"
+     'Swap Cards
+      test = 0
+      Do While test < 20
+        test = test + 1
+        For i = 1 To UBound(TreSel)
+          tmp = vGet("p" & TreSel(i))
+          swapcard = Int(Rnd * 69) + 13 'Select a card outside the board of 12 cards (81 - 12 = 69 and an offset of 13).
+          vSet "p" & TreSel(i), vGet("p" & swapcard)
+          vSet "p" & swapcard, tmp
+        Next
+        AllSet
+        If Len(vGet("Sets")) > 0 Then Exit Do
+      Loop
+      vSet "CardTest", test
+    Else
+      vSet "Score" & Player, vGet("Score" & Player) - 1
+      NoMatch = VbCrLf
+      If Not Match And  2 Then NoMatch = NoMatch & "Number" & VbCrLf
+      If Not Match And  4 Then NoMatch = NoMatch & "Color"  & VbCrLf
+      If Not Match And  8 Then NoMatch = NoMatch & "Form"   & VbCrLf
+      If Not Match And 16 Then NoMatch = NoMatch & "Fill"   & VbCrLf
+      vSet "LastText", vGet("Player" & Player) & ", no SET" & VbCrLf & "-1 point" & VbCrLf & NoMatch
+      ActiveDocument.PlaySound "qmem://SETsound/SETno.wav"
+      'MsgBox vGet("Player" & Player) & ", no match." & VbCrLf & "-1 point" & VbCrLf & NoMatch
+    End If
+    For i = 1 To 12
+      vSet "col" & i, 0
+    Next
+    TableSort
+    vSet "Cheat", 0
+    vSet "Hint1", 0
+    vSet "Hint2", 0
+  End If 'If Total = 3
+End Sub
+
+'Find all Sets
+Sub AllSet
+  Dim Card(12)
+  Sets = ""
+  For c1 = 1 To 10
+    For c2 = c1 + 1 To 11
+      For c3 = c2 + 1 To 12
+        Card(c1) = vGet("p" & c1)
+        Card(c2) = vGet("p" & c2)
+        Card(c3) = vGet("p" & c3)
+        Match = 0
+        For i = 1 To 4
+          a = Mid(Card(c1), i, 1)
+          b = Mid(Card(c2), i, 1)
+          c = Mid(Card(c3), i, 1)
+          If (a = b And b = c) Or (a <> b And a <> c And b <> c) Then Match = Match + 1
+        Next
+        If Match = 4 Then
+          Sets = Sets & c1 & "," & c2 & "," & c3 & VbCrLf
+        End If
+      Next
+    Next
+  Next
+  vSet "Sets", Sets 'List of possible Sets
+End Sub
+
+Sub Reset
+  'Clear scores y/n
+  If MsgBox("Clear scores?", 4, "SET reset") = VbYes Then
+    For i = 1 To 6
+      vSet "Score" & i, 0
+    Next
+  End If
+  'Set number of players
+  OK = False
+  Do Until OK = True
+    answer = Question("Number of players (1-6)?", "SET number of players", vGet("Players"))
+    If InStr("123456", CLng(answer)) = CLng(answer) And answer <> "" Then 
+      vSet "Players", answer
+      OK = True
+    End If
+  Loop
+  'Change player names
+  For i = 1 To vGet("Players")
+    OK = False
+    Do Until OK = True
+      answer = Question("Name Player " & i, "Name for player " & i, vGet("Player" & i))
+      If answer <> "" Then
+        vSet "Player" & i, answer
+        OK = True
+      End If
+    Loop
+  Next
+  TableSort
+End sub
+
+'Sort score table and create ScoreTable-variable
+Sub TableSort
+  Dim p_name(6), p_score(6)
+  'Read names and score
+  For i = 1 To vGet("Players")
+    p_name(i) = vGet("Player" & i)
+    p_score(i) = CSng(vGet("Score" & i)) 'Convert text to number with decimals
+  Next
+  'Bubble sort
+  For i = 1 To vGet("Players")
+    For j = 1 To vGet("Players") - 1
+      If p_score(j) < p_score(j + 1) Then
+        temp_s = p_score(j + 1)
+        temp_n = p_name(j + 1)
+        p_score(j + 1) = p_score(j)
+        p_name(j + 1) = p_name(j)
+        p_score(j) = temp_s
+        p_name(j) = temp_n
+      End If
+    Next
+  Next
+  'Create ScoreTable variable
+  vSet "ScoreTable", "Score Table" & VbCrLf 
+  s = 1
+  For i = 1 To vGet("Players")
+    If i > 1 And p_score(i) <> p_score(i - 1) Then s = i
+    vSet "ScoreTable", vGet("ScoreTable") & VbCrLf & s & ". " & p_name(i) & ": " & p_score(i)
+  Next
+End Sub
+
+'Get value from variable
+Function vGet(v)
+  Set strValue = ActiveDocument.GetVariable(v)
+  Answer = strValue.GetContent.String
+  vGet = Answer
+End Function
+
+'Set variable value
+Sub vSet(vName, vValue)
+    ActiveDocument.Variables(vName).SetContent vValue, True
+End Sub
+
+Function Question(prompt, title, default)
+  If Len(title) < 1 Then title = "SET"
+  If Len(default) < 1 Then default = ""
+  Question = InputBox(prompt, title, default)
+End Function
