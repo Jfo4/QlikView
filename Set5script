@@ -1,0 +1,153 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep='.';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='#.##0,00 kr;-#.##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+PlayerNames:
+Load * Inline [
+Name, Score
+Carl, 0
+Lisa, 0
+Roger, 0
+Peter, 0
+Emma, 0
+Helen, 0
+];
+
+Left Join (PlayerNames)
+Load Name,
+     RecNo() As No
+Resident PlayerNames;
+
+Let Play = 1;
+
+// Number of players from PlayerNames table
+Let Players = Peek('No', -1, 'PlayerNames');
+
+// Create ScoreTable varible
+Let ScoreTable = 'Score Table' & Chr(13) & Chr(10) & Chr(13) & Chr(10);
+
+// All players are number one with 0 point
+For i = 1 To $(Players)
+  Let Score$(i) = Peek('Score', i - 1, 'PlayerNames');
+  Let Player$(i) = Peek('Name', i - 1, 'PlayerNames');
+  Let ScoreTable =  ScoreTable & '1. ' & Player$(i) & ':' & Score$(i) & Chr(13) & Chr(10); 
+Next
+
+Drop Table PlayerNames;
+
+// Create card deck, five properties with three variants: 3 x 3 x 3 x 3 x 3 = 243 cards
+Card:
+Load 1 As dummy AutoGenerate 1;
+
+Let n = 1;
+For c1 = 0 To 2
+  For c2 = 0 To 2
+    For c3 = 0 To 2
+      For c4 = 0 To 2
+       For c5 = 0 To 2  
+          Concatenate (Card)
+          Load $(n) As No,
+               $(c1) & $(c2) & $(c3) & $(c4) & $(c5) As Card AutoGenerate 1;
+          Let n = n + 1;
+        Next
+      Next
+    Next
+  Next
+Next
+
+Let c1 = ;
+Let c2 = ;
+Let c3 = ;
+Let c4 = ;
+Let c5 = ;
+Let n = ;
+
+Drop Field dummy;
+
+Inner Join (Card)
+Load No,
+//     Card,
+//     SubField('Ett,Två,Tre', ',', Mid(Card, 1, 1) + 1) As Number,
+//     SubField('Röd,Grön,Blå', ',', Mid(Card, 2, 1) + 1) As Color,
+//     SubField('Triangel,Oval,Fyrkant', ',', Mid(Card, 3, 1) + 1) As Form,
+//     SubField('Full,Tom,Halv', ',', Mid(Card, 4, 1) + 1) As Fill,
+//     SubField('Orange,Lila,Gul', ',', Mid(Card, 5, 1) + 1) As Card,
+     Rand() As slump
+Resident Card
+Where No >= 0;
+
+Left Join (Card)
+Load Right('00' & RecNo(), 3) As Slump,
+     No
+Resident Card
+Order By slump;
+
+Drop Field slump;
+
+OneRow:
+Load Concat(Slump & Card, ';') As One
+Resident Card;
+
+Let One = Peek('One', 0, 'OneRow');
+Drop Table OneRow;
+Drop Table Card;
+
+For i = 1 To 243
+  Let p$(i) = Right(SubField('$(One)', ';', i), 5);
+Next
+
+For i = 1 To 15
+  Let col$(i) = 0;
+Next
+
+Let i = ;
+Let One = ;
+
+Let Sets = '-';
+Let CardTest = 1;
+Let Cheat = 0;
+Let Hint1 = 0;
+Let Hint2 = 0;
+Let Last1 = '';
+Let Last2 = '';
+Let Last3 = '';
+Let LastText = '';
+
+// Color of card symbols
+Let CR = '255,   0,   0';
+Let CG = '  0, 200,   0';
+Let CB = '  0,   0, 255';
+
+// Border colors with name and score
+Let BR = '100, 250, 250, 100, 100, 250';
+Let BG = '100, 100, 100, 250, 250, 250';
+Let BB = '250, 250, 100, 100, 250, 100';
+
+SET:
+Load * Inline [
+SameDiff, Counter
+0 : 5, 1296
+1 : 4, 3240
+2 : 3, 3240
+3 : 2, 1620
+4 : 1, 405
+];
+
+Sound:
+Load * Inline [
+SETsound, dir, name
+SETright.wav, C:\Jfo\Qv\Set\, Right
+SETwrong.wav, C:\Jfo\Qv\Set\, Wrong
+];
+
+Bundle
+Load SETsound,
+     dir & SETsound
+Resident Sound;
