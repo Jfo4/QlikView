@@ -1,0 +1,6 @@
+library(rfm)
+rfm_data_customer <- read.table("c:\\jfo\\qv\\rfm\\in\\rfm.txt", header=TRUE, sep=";", fileEncoding="UTF-8-BOM")
+analysis_date <- lubridate::as_date('2021-01-11')
+rfm_result <- rfm_table_customer(rfm_data_customer, customer_id, transaction_count, recency_days, amount, analysis_date)
+write.table(rfm_result$rfm, "c:/jfo/qv/rfm/in/mydata.txt", sep="\t")
+q()
