@@ -1,0 +1,146 @@
+Sub T2G()
+    Sheets("Make Puzzle").Select
+    Dim Row, Col, sz As Integer
+    sz = Len(Range("B1"))
+    If sz <> 6 And sz <> 7 Then Exit Sub
+    Application.ScreenUpdating = False
+    Columns("B:B").Select
+    If sz = 6 Then
+      Selection.TextToColumns Destination:=Range("B1"), DataType:=xlFixedWidth, FieldInfo:=Array(Array(0, 1), Array(1, 1), Array(2, 1), Array(3, 1), Array(4, 1), Array(5, 1)), TrailingMinusNumbers:=True
+    ElseIf sz = 7 Then
+      Selection.TextToColumns Destination:=Range("B1"), DataType:=xlFixedWidth, FieldInfo:=Array(Array(0, 1), Array(1, 1), Array(2, 1), Array(3, 1), Array(4, 1), Array(5, 1), Array(6, 1)), TrailingMinusNumbers:=True
+    End If
+    Range("B1").Select
+    Cells.Replace What:=".", Replacement:="", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    If sz = 6 Then
+      Range("B2:G7").Select
+    ElseIf sz = 7 Then
+      Range("B2:H8").Select
+    End If
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+    End With
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlInsideVertical)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlInsideHorizontal)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    If sz = 6 Then
+      Range("B1:G7").Select
+    ElseIf sz = 7 Then
+      Range("B1:H8").Select
+    End If
+    Selection.Copy
+    If sz = 6 Then
+      Range("B8:G448").Select
+    ElseIf sz = 7 Then
+      Range("B9:H576").Select
+    End If
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    Application.CutCopyMode = False
+For Puzzle = 1 To 66
+  For Row = 2 To sz + 1
+  For Col = 2 To sz + 1
+    C = Cells((Puzzle - 1) * (sz + 1) + Row, Col).Value
+    u = Cells((Puzzle - 1) * (sz + 1) + Row + 1, Col).Value
+    l = Cells((Puzzle - 1) * (sz + 1) + Row, Col + 1).Value
+    d = Cells((Puzzle - 1) * (sz + 1) + Row - 1, Col).Value
+    r = Cells((Puzzle - 1) * (sz + 1) + Row, Col - 1).Value
+    Cells((Puzzle - 1) * (sz + 1) + Row, Col).Select
+    If C = "Z" Then
+      Selection.Interior.Color = 10498160
+    ElseIf C = "T" Then
+      Selection.Borders(xlEdgeRight).LineStyle = xlNone
+      Selection.Interior.Color = 255
+    ElseIf C = "G" Then
+      Selection.Borders(xlEdgeLeft).LineStyle = xlNone
+      Selection.Interior.Color = 255
+    ElseIf C = "U" Then
+      Selection.Borders(xlEdgeBottom).LineStyle = xlNone
+      Selection.Interior.Color = 65535
+      If u = "X" Then
+        Selection.Interior.Color = 5296274
+      End If
+    ElseIf C = "D" Then
+      Selection.Borders(xlEdgeTop).LineStyle = xlNone
+      Selection.Interior.Color = 65535
+      If d = "X" Then
+        Selection.Interior.Color = 5296274
+      End If
+    ElseIf C = "L" Then
+      Selection.Borders(xlEdgeRight).LineStyle = xlNone
+      Selection.Interior.Color = 49407
+      If l = "X" Then
+        Selection.Interior.Color = 15773696
+      End If
+    ElseIf C = "R" Then
+      Selection.Borders(xlEdgeLeft).LineStyle = xlNone
+      Selection.Interior.Color = 49407
+      If r = "X" Then
+        Selection.Interior.Color = 15773696
+      End If
+    ElseIf C = "X" Then
+      Selection.Interior.Color = 5296274
+      If l = "R" And r = "L" Then
+        Selection.Interior.Color = 15773696
+      End If
+    End If
+  Next Col
+  Next Row
+Next Puzzle
+' Move puzzles from rows to columns
+paste_first = ""
+paste_to = "B"
+For i = 1 To 60
+    paste_to = Chr(Asc(paste_to) + sz + 1)
+    If Asc(paste_to) > 90 Then
+      paste_to = Chr(Asc(paste_to) - 26)
+      If paste_first = "" Then
+        paste_first = "A"
+      Else
+        paste_first = Chr(Asc(paste_first) + 1)
+      End If
+    End If
+    If sz = 6 Then
+        Range("B9:G14").Cut Range(paste_first & paste_to & "2") 'always move this range
+        Rows("9:15").Select 'and delete these rows afterwards
+    ElseIf sz = 7 Then
+        Range("B10:H16").Cut Range(paste_first & paste_to & "2") 'always move this range
+        Rows("10:17").Select 'and delete these rows afterwards
+    End If
+    Selection.Delete
+Next i
+Application.ScreenUpdating = True
+End Sub
