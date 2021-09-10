@@ -1,0 +1,90 @@
+Set ThousandSep=' ';
+Set DecimalSep=',';
+Set MoneyThousandSep=' ';
+Set MoneyDecimalSep=',';
+Set MoneyFormat='# ##0,00 kr;-# ##0,00 kr';
+Set TimeFormat='hh:mm:ss';
+Set DateFormat='YYYY-MM-DD';
+Set TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+Set MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+Set DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+// Colors for blocks and background
+Let UD  = '240,240,40'; // Yellow
+Let UXD = '20,220,20';  // Green
+Let LR  = '250,120,40'; // Orange
+Let LXR = '100,100,250';// Blue
+Let TG  = '220,0,0';    // Red
+Let Z   = '80,0,20';    // Purple 170,0,170
+Let E   = '160,80,40';  // Background 150,150,150
+
+// Puzzle info: Piece number (by file), Pattern and Blanks, and later number of fixed pieces "Z"
+Puzzles:
+Load Pz, 
+     Pattern,
+     34 -
+     (2 * Len(KeepChar(Pattern, 'b')) +
+     3 * Len(KeepChar(Pattern, 'd')) +
+     4 * Len(KeepChar(Pattern, 'c')) +
+     5 * Len(KeepChar(Pattern, 'ef')) +
+     6 * Len(KeepChar(Pattern, 'g'))) As B,
+     Mid(FileBaseName(), 4) As FN,
+     Mid(FileBaseName(), 4) & ':' & Right('0000000' & Pz, 7) As Key
+From PP_*.qvd (qvd);
+
+// Add "Rush" puzzles, flag Pz as mf_pz for Moves selection
+Concatenate (Puzzles)
+Load Pz,
+     Pz As mf_pz, // for selections of moves only from "Rush"
+     Pattern,
+     34 -
+     (2 * Len(KeepChar(Pattern, 'b')) +
+     3 * Len(KeepChar(Pattern, 'd')) +
+     4 * Len(KeepChar(Pattern, 'c')) +
+     5 * Len(KeepChar(Pattern, 'ef')) +
+     6 * Len(KeepChar(Pattern, 'g'))) As B,
+     '_Rush' As FN,
+     '_Rush' & ':' & Right('0000000' & Pz, 7) As Key
+From Mf\PP_MF*.qvd (qvd)
+Where Exists(Pattern) Or Pz <= 600; // Pz <= 600 for 40 Moves or more
+
+// Puzzle moves 0 to end, Number of fixed (Z)
+Moves:
+Load Mv, 
+     Grid,
+     Len(KeepChar(Grid, 'Z')) As Z1, // Temporary field, moved to Puzzles table later
+     Mid(FileBaseName(), 6) & ':' & Right('0000000' & Pz, 7) As Key
+From Ubm1_*.qvd (qvd);
+
+// Add "Rush" puzzle moves where Pz (mf_pz) matches from Puzzle table
+Concatenate (Moves)
+Load Mv, 
+     Grid,
+     Len(KeepChar(Grid, 'Z')) As Z1, // Temporary field, moved to Puzzles table later
+     '_Rush' & ':' & Right('0000000' & Pz, 7) As Key
+From Mf\Ubm1_MF*.qvd (qvd)
+Where Exists(mf_pz, Pz);
+
+Drop Field mf_pz;
+
+// Add Max moves and number of fixed pieces (Z) from Moves to Puzzles
+Left Join (Puzzles)
+Load Key,
+     Max(Mv) As MaxMv,
+     Max(Z1) As Z
+Resident Moves
+Group By Key;
+
+Drop Field Z1;
+
+Move0:
+Load Grid As Move0,
+     Key
+Resident Moves
+Where Mv = 0;
+
+Left Join (Move0)
+Load Move0,
+     Count(Move0) As MvC
+Resident Move0
+Group By Move0;
