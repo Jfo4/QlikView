@@ -1,0 +1,275 @@
+Set ErrorMode = 0;
+Set ThousandSep=' ';
+Set DecimalSep=',';
+Set MoneyThousandSep=' ';
+Set MoneyDecimalSep=',';
+Set MoneyFormat='# ##0,00 kr;-# ##0,00 kr';
+Set TimeFormat='hh:mm:ss';
+Set DateFormat='YYYY-MM-DD';
+Set TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+Set MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+Set DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+//Let ReadFile = '[C:\Jfo\Sliding Blocks\Unblock Me\1 Beginner\01 Original Free\3.xlsx]';
+//Let Table = 'Beginner';
+//Let Qvd = 'UBM_BOF3';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Basic\8 Rotate Mix.xlsx';
+//Let Table = 'Rotate Mix';
+//Let Qvd = 'MTB_Basic8';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Old\1 Easy\2.xlsx';
+//Let Table = 'Easy';
+//Let Qvd = 'MTB_OldEasy2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Old\2 Normal\2.xlsx';
+//Let Table = 'Normal';
+//Let Qvd = 'MTB_OldNormal2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Old\3 Hard\2.xlsx';
+//Let Table = 'Hard';
+//Let Qvd = 'MTB_OldHard2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Old\4 Pro 1\2.xlsx';
+//Let Table = 'Pro 1';
+//Let Qvd = 'MTB_OldPro12';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Old\5 Pro 2\2.xlsx';
+//Let Table = 'Pro 2';
+//Let Qvd = 'MTB_OldPro22';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Old\6 Extreme\3.xlsx';
+//Let Table = 'Extreme';
+//Let Qvd = 'MTB_OldExtreme3';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Premium\1 Mania.xlsx';
+//Let Table = 'Mania';
+//Let Qvd = 'MTB_Premium1';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Premium\2 Mania Rotate.xlsx';
+//Let Table = 'Mania Rotate';
+//Let Qvd = 'MTB_Premium2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Premium\3 Pro.xlsx';
+//Let Table = 'Pro';
+//Let Qvd = 'MTB_Premium3';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Premium\4 Pro Rotate.xlsx';
+//Let Table = 'Pro Rotate';
+//Let Qvd = 'MTB_Premium4';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Premium\5 Special Mix A.xlsx';
+//Let Table = 'Special Mix A';
+//Let Qvd = 'MTB_Premium5';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Premium\6 Special Mix B.xlsx';
+//Let Table = 'Special Mix B';
+//Let Qvd = 'MTB_Premium6';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Move the Block\Premium\7 6x6 Extreme.xlsx';
+//Let Table = '6x6 Extreme';
+//Let Qvd = 'MTB_Premium7';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock Bar\1 Beginner.xlsx';
+//Let Table = 'Beginner';
+//Let Qvd = 'UBar_Beginner';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock Bar\2 Advanced.xlsx';
+//Let Table = 'Advanced';
+//Let Qvd = 'UBar_Advanced';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock Bar\3 Master.xlsx';
+//Let Table = 'Master';
+//Let Qvd = 'UBar_Master';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock Bar\4 Expert.xlsx';
+//Let Table = 'Expert';
+//Let Qvd = 'UBar_Expert';
+
+Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock Me\7 Daily Puzzle\15.xlsx';
+Let Table = 'Daily Puzzle';
+Let Qvd = 'UBM_DP15';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Blocks\Easy\1.xlsx';
+//Let Table = 'Easy';
+//Let Qvd = 'Blocks1';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Extra\Michael Fogleman\36.xlsx';
+//Let Table = 'Michael Fogleman';
+//Let Qvd = 'MF_36';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Extra\Michael Fogleman\Test.xlsx';
+//Let Table = 'Michael Fogleman';
+//Let Qvd = 'Test';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Extra\Jams\Jams.xlsx';
+//Let Table = 'Jams';
+//Let Qvd = 'Jams';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock\1 Beginner\1.xlsx';
+//Let Table = 'Beginner';
+//Let Qvd = 'UB_Beginner1';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock\2 Easy\02.xlsx';
+//Let Table = 'Easy';
+//Let Qvd = 'UB_Easy02';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock\6 Challenge\10.xlsx';
+//Let Table = 'Challenge';
+//Let Qvd = 'UB_Challenge10';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Blue Block\4 Hard\1.xlsx';
+//Let Table = 'Hard';
+//Let Qvd = 'BB_Hard1';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Blue Block\5 Expert\1.xlsx';
+//Let Table = 'Expert';
+//Let Qvd = 'BB_Expert1';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Blue Block\6 Crazy\1.xlsx';
+//Let Table = 'Crazy';
+//Let Qvd = 'BB_Crazy1';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock It\1 Beginner\2.xlsx';
+//Let Table = 'Beginner';
+//Let Qvd = 'UBI_12';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock It\2 Very Easy\6.xlsx';
+//Let Table = 'Very Easy';
+//Let Qvd = 'UBI_26';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock It\3 Medium\03.xlsx';
+//Let Table = 'Medium';
+//Let Qvd = 'UBI_33';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock Car\1 Beginner\2.xlsx';
+//Let Table = 'Beginner';
+//Let Qvd = 'UBC_12';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock Car\2 Very Easy\6.xlsx';
+//Let Table = 'Very Easy';
+//Let Qvd = 'UBC_26';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Slider Escape\1 Novice\2.xlsx';
+//Let Table = 'Novice';
+//Let Qvd = 'SE_Novice2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Slider Escape\2 Regular\2.xlsx';
+//Let Table = 'Regular';
+//Let Qvd = 'SE_Regular2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Slider Escape\3 Intermediate\2.xlsx';
+//Let Table = 'Intermediate';
+//Let Qvd = 'SE_Intermediate2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Slider Escape\4 Advanced\2.xlsx';
+//Let Table = 'Advanced';
+//Let Qvd = 'SE_Advanced2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Slider Escape\5 Difficult\2.xlsx';
+//Let Table = 'Difficult';
+//Let Qvd = 'SE_Difficult2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Slider Escape\6 Expert\2.xlsx';
+//Let Table = 'Expert';
+//Let Qvd = 'SE_Expert2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Slider Escape\7 Master\2.xlsx';
+//Let Table = 'Master';
+//Let Qvd = 'SE_Master2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Slider Escape\8 Hero\2.xlsx';
+//Let Table = 'Hero';
+//Let Qvd = 'SE_Hero2';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Extra\Michael Fogleman\MF05.xlsx';
+//Let Table = 'MF';
+//Let Qvd = 'MF05';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\UnBlockTK\3.xlsx';
+//Let Table = 'UnBlockTK';
+//Let Qvd = 'UBTK3';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\Unblock TB\1 Kids\02.xlsx';
+//Let Table = 'Kids';
+//Let Qvd = 'UTB_Kids02';
+
+//Let ReadFile = 'C:\Jfo\Sliding Blocks\MästarnasMästare.xlsx';
+//Let Table = 'MM';
+//Let Qvd = 'MM2021';
+
+For j = 0 To 60
+  For i = 1 To 6;
+    Let a$(i) = 2 + $(j) * 7 + $(i);
+  Next
+  ubm_in:
+  Load If(Mod(RowNo(), 6) > 0, Mod(RowNo(), 6), 6) As Rad,
+       RowNo() As R,
+       Floor(@1) As Puzzle,
+       $(j) As Move,
+       If(@$(a1) <> '', @$(a1), '.') &
+       If(@$(a2) <> '', @$(a2), '.') &
+       If(@$(a3) <> '', @$(a3), '.') &
+       If(@$(a4) <> '', @$(a4), '.') &
+       If(@$(a5) <> '', @$(a5), '.') &
+       If(@$(a6) <> '', @$(a6), '.') As AA
+  From  $(ReadFile)
+  (ooxml, no labels, header is 1 lines, table is [$(Table)],
+  Filters(Replace(1, top, StrCnd(Null))));
+Next
+
+tmp:
+Load Puzzle,
+     Max(R) As MaxR,
+     Max(Rad) As MaxRad
+Resident ubm_in
+Where Puzzle > 0
+Group By Puzzle;
+
+Left Join (ubm_in)
+Load MaxR + 1 As R,
+     Puzzle As P
+Resident tmp
+Where MaxRad < 6;
+
+Drop Table tmp;
+
+ubm_fix:
+NoConcatenate
+Load If(Puzzle > 0, Puzzle, P) As Puzzle,
+     Move,
+     Rad,
+     AA
+Resident ubm_in;
+
+Drop Table ubm_in;
+
+ubm:
+Load Distinct Right('0000000' & Puzzle, 7) & '_' & Right('0' & Move, 2) As P
+Resident ubm_fix;
+
+For i = 1 To 6
+  Left Join (ubm)
+  Load Right('0000000' & Puzzle, 7) & '_' & Right('0' & Move, 2) As P,
+       AA As AA$(i)
+  Resident ubm_fix
+  Where Rad = $(i);
+Next
+
+ubm1:
+Load Num(SubField(P, '_', 1)) As Pz,
+     Num(SubField(P, '_', 2)) As Mv,
+     G As Grid
+     Where Len(PurgeChar(G, '.')) > 0;
+Load P,
+     AA1 & AA2 & AA3 & AA4 & AA5 & AA6 As G
+Resident ubm;
+
+Store ubm1 Into Ubm1_$(Qvd).qvd;
+
+PP:
+Load Pz, PP(Grid) As Pattern
+Resident ubm1
+Where Mv = 0;
+
+Store PP Into PP_$(Qvd).qvd;
