@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+# An Unblock Me solver written using A* search algorithm
+# perfect solution
+# Author: Saren
+
+START = (
+
+('U', ' ', 'L', 'X', 'R', ' '),
+('D', 'L', 'R', 'Z', ' ', 'Z'),
+('T', 'G', ' ', 'U', ' ', 'U'),
+('U', 'Z', 'U', 'D', ' ', 'D'),
+('D', ' ', 'D', 'L', 'R', ' '),
+('L', 'R', ' ', ' ', 'Z', ' ')
+
+)
+
+SIZE = len(START)
+
+class UBMGrid():
+
+    def __init__(self):
+        pass
+
+    def render(grid):
+        print("H" * SIZE)
+##        if SIZE == 6:
+##            print("=GRID=")
+##        if SIZE == 7:
+##            print("=GRID7=")
+        for row in grid:
+            print("".join(row))
+
+    def to_tuple(grid):
+        return tuple([tuple(row) for row in grid])
+
+    def generate_neighbors(p):
+        n = []
+        for y in range(SIZE):
+            for x in range(SIZE):
+                position = x, y
+                grid = p
+                while UBMGrid.is_movable(grid, *position):
+                    grid = UBMGrid.copy_from(grid)
+                    position = UBMGrid.move_block(grid, *position)
+                    n.append(UBMGrid.to_tuple(grid))
+        return n
+
+    def find_path_from(start):
+        open_list, open_list_check, closed_list = [start], set([start]), set()
+        g, f, h, came_from = {}, {}, {}, {}
+        g[start] = 0
+        f[start] = UBMGrid.distance_from_goal(start)
+        h[start] = f[start]
+        while open_list:
+            parent = min(open_list, key=f.get)
+            if UBMGrid.is_goal(parent):
+                return UBMGrid.reconstruct_path(came_from, parent)
+            open_list_check.remove(parent)
+            open_list.remove(parent)
+            closed_list.add(parent)
+            for neighbor in UBMGrid.generate_neighbors(parent):
+                if neighbor in closed_list:
+                    continue
+                tmp_g = g[parent] + UBMGrid.distance(parent, neighbor)
+                better = False
+                if neighbor not in open_list_check:
+                    open_list.append(neighbor)
+                    open_list_check.add(neighbor)
+                    better = True
+                elif tmp_g < g[neighbor]:
+                    better = True
+                if better:
+                    came_from[neighbor] = parent
+                    g[neighbor] = tmp_g
+                    h[neighbor] = UBMGrid.distance_from_goal(neighbor)
+                    f[neighbor] = g[neighbor] + h[neighbor]
+
+    def copy_from(grid):
+        return [list(row[:]) for row in grid]
+
+    def is_movable(grid, x, y):
+        if grid[y][x] == "U" and y > 0 and grid[y - 1][x] == " ":
+            return True
+        if grid[y][x] == "D" and y < SIZE - 1 and grid[y + 1][x] == " ":
+            return True
+        if (grid[y][x] == "L" or grid[y][x] == "T") and x > 0 and grid[y][x - 1] == " ":
+            return True
+        if (grid[y][x] == "R" or grid[y][x] == "G") and x < SIZE - 1 and grid[y][x + 1] == " ":
+            return True
+        return False
+
+    def move_block(grid, x, y):
+        if grid[y][x] == "U":
+            grid[y - 1][x] = "U"
+            if grid[y + 1][x] == "X":
+                grid[y][x] = "X"
+                grid[y + 1][x] = "D"
+                grid[y + 2][x] = " "
+            else:
+                grid[y][x] = "D"
+                grid[y + 1][x] = " "
+            return x, y - 1
+        elif grid[y][x] == "D":
+            grid[y + 1][x] = "D"
+            if grid[y - 1][x] == "X":
+                grid[y][x] = "X"
+                grid[y - 1][x] = "U"
+                grid[y - 2][x] = " "
+            else:
+                grid[y][x] = "U"
+                grid[y - 1][x] = " "
+            return x, y + 1
+        elif grid[y][x] == "L":
+            grid[y][x - 1] = "L"
+            if grid[y][x + 1] == "X":
+                grid[y][x] = "X"
+                grid[y][x + 1] = "R"
+                grid[y][x + 2] = " "
+            else:
+                grid[y][x] = "R"
+                grid[y][x + 1] = " "
+            return x - 1, y
+        elif grid[y][x] == "R":
+            grid[y][x + 1] = "R"
+            if grid[y][x - 1] == "X":
+                grid[y][x] = "X"
+                grid[y][x - 1] = "L"
+                grid[y][x - 2] = " "
+            else:
+                grid[y][x] = "L"
+                grid[y][x - 1] = " "
+            return x + 1, y
+        elif grid[y][x] == "T":
+            grid[y][x - 1] = "T"
+            if grid[y][x + 1] == "X":
+                grid[y][x] = "X"
+                grid[y][x + 1] = "G"
+                grid[y][x + 2] = " "
+            else:
+                grid[y][x] = "G"
+                grid[y][x + 1] = " "
+            return x - 1, y
+        elif grid[y][x] == "G":
+            grid[y][x + 1] = "G"
+            if grid[y][x - 1] == "X":
+                grid[y][x] = "X"
+                grid[y][x - 1] = "T"
+                grid[y][x - 2] = " "
+            else:
+                grid[y][x] = "T"
+                grid[y][x - 1] = " "
+            return x + 1, y
+
+
+    def is_goal(grid):
+        if SIZE == 6:
+            return grid[2][5] == "G"
+        if SIZE == 7:
+            return grid[3][6] == "G"
+
+    def distance(grid1, grid2):
+        return 1
+
+    def distance_from_goal(grid):
+        # The blocking heuristic
+        # http://www.cs.princeton.edu/courses/archive/fall04/cos402/assignments/rushhour/
+        d = 1
+        for x in range(SIZE - 1, 0, -1):
+            if SIZE == 6:
+                if grid[2][x] == "G":
+                    break
+                if grid[2][x] != " ":
+                    d += 1
+            if SIZE == 7:
+                if grid[3][x] == "G":
+                    break
+                if grid[3][x] != " ":
+                    d += 1
+        return d
+
+    def reconstruct_path(came_from, current_node):
+        path = [current_node]
+        while current_node in came_from:
+            current_node = came_from[current_node]
+            path.append(current_node)
+        return path
+
+    def make_trails(results):
+        for seq in range(1, len(results)):
+            for y in range(SIZE):
+                for x in range(SIZE):
+                    if results[seq - 1][y][x] not in [" ", "."] and results[seq][y][x] == " ":
+                        grid = list(results[seq])
+                        grid[y] = list(grid[y])
+                        grid[y][x] = "."
+                        results[seq] = UBMGrid.to_tuple(grid)
+
+if __name__ == "__main__":
+    # UBM free expert original 372
+    # Expected solve time: 0.82 seconds (i7 7700 on Linux)
+    # 42 moves (perfect)
+    results = UBMGrid.find_path_from(UBMGrid.to_tuple(START))
+    if not results:
+        print("No solution")
+        exit()
+    results = results[::-1]
+    UBMGrid.make_trails(results)
+    for grid in results:
+        UBMGrid.render(grid)
+    print("Moves:{}".format(len(results) - 1))
