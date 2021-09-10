@@ -1,0 +1,8 @@
+Sub PrepPuzzle()
+    Sheets("Make Puzzle").Select
+    Rows("1:8").Select
+    Selection.Delete Shift:=xlUp
+    Columns("A:H").Select
+    Selection.Delete Shift:=xlToLeft
+    Range("B1").Select
+End Sub
