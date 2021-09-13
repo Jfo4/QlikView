@@ -1,0 +1,145 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep='.';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='#.##0,00 kr;-#.##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+For i = 1 To 12 // 12 books
+  Let k = Right('0' & $(i), 2);
+  Text0:
+  Load Replace(@1, Chr(9), ' ') As Line0,
+       $(k) & '_' & FileBaseName() As Source0,
+       RowNo() As Row0
+  From [C:\Jfo\Qv\word_count\Shakespeare\$(k)\*.txt]
+  (txt, utf8, no labels, delimiter is \x1, no quotes);
+Next
+
+// Remove these tags
+TagList:
+Load * Inline [
+TAG
+<h1>
+</h1>
+<h2>
+</h2>
+<sp>
+</sp>
+<i>
+</i>
+<img>
+</img>
+<sc>
+</sc>
+»
+--
+<poem>
+</poem>
+<tab>
+<footnote>
+</footnote>
+<table o>
+</table>
+<td>
+<td 2>
+<td 2 c>
+<td v2>
+<td v4>
+<td v5>
+<b>
+</b>
+<br>
+'"'
+</chapter>
+];
+
+Let TagCount = NoOfRows('TagList');
+
+// Replace each tag with blank
+For i = 0 to $(TagCount) - 1;
+  Let j = i + 1;
+  Let R = Peek('TAG', i, 'TagList');
+  Let F = 'Text' & j;
+  Let F1 = 'Text' & i;
+  $(F):
+  Load Replace(Line$(i), '$(R)', ' ') As Line$(j),
+       Source$(i) As Source$(j),
+       Row$(i) As Row$(j)
+  Resident $(F1);
+  Drop Table $(F1);
+Next
+
+Rename Field Line$(i) To Line;
+Rename Field Source$(i) To Source;
+Rename Field Row$(i) To Row;
+
+Rename Table $(F) To TextFiles;
+
+Drop Table TagList;
+
+Words:
+Load KeepChar(Lower(Line), 'abcdefghijklmnopqrstuvwxyzåäö-à ') As Words,
+     Source As TextFile,
+     1 + Len(KeepChar(Line, ' ')) As Blanks,
+     Row As Order
+Resident TextFiles
+Where Len(Line) > 0;
+
+WordMax:
+Load Max(Blanks) As w_count
+Resident Words;
+
+Let m = Peek('w_count', 0, 'WordMax');
+
+Drop Table WordMax;
+
+For i = 1 To $(m)
+  F:
+  Load TextFile As F,
+       Order As R,
+       $(i) As W,
+       SubField(Words, ' ', $(i)) As Word,
+       Len(SubField(Words, ' ', $(i))) As WL
+  Resident Words
+  Where Blanks >= $(i);
+Next
+
+Drop Tables Words;
+
+W:
+NoConcatenate
+Load F,
+     R As Row,
+     W,
+     Word,
+     WL
+Resident F
+Where WL > 0;
+
+Drop Table F;
+
+LL:
+Load Max(WL) As LL
+Resident W;
+
+Let ll = Peek('LL');
+
+Drop Table LL;
+
+For i = 1 To $(ll)
+  Letter:
+  Load Word,
+       Mid(Word, $(i), 1) As L
+  Resident W
+  Where WL >= $(i);
+Next
+
+// Letter Distinct for <AndMode>
+LD:
+Load Distinct Word,
+     L As LD
+Resident Letter;
