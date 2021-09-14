@@ -1,0 +1,57 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep='.';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='#.##0,00 kr;-#.##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+For Each file in filelist('png\*.png')
+  PNG: Load '$(file)' As PNG AutoGenerate 1;
+Next
+
+Pics: Bundle //Image_Size(500, 500)
+Load PNG, PNG As Fx Resident PNG;
+
+B:
+Load @1 As Bitar,
+     Len(KeepChar(@1, ',')) + 1 As Antal,
+     Len(KeepChar(@1, 'bf')) & // 3
+     Len(KeepChar(@1, '045689d')) & // 4
+     Len(KeepChar(@1, '1237aceghijk')) As B345, // 5
+     @2 As Olika
+From 3x3x3_alla.txt
+(txt, codepage is 1252, no labels, delimiter is '\t', msq);
+
+//AndMode
+For i = 1 To 7
+  Brutto:
+  Load Distinct Bitar,
+       SubField(Bitar, ',', $(i)) As B2
+  Resident B;
+Next
+
+Lösning:
+Load @1 As Bitar, 
+     @2 As Lösning
+From 3x3x3_alla_s.txt
+(txt, codepage is 1252, no labels, delimiter is '\t', no quotes);
+
+Test:
+Load * Inline [
+Bitar, NamedPuzzles
+'0,4,5,6,8,9,b', Soma
+'0,1,2,5,8,e', Kairatos
+'1,4,5,8,e,g', Minos
+'1,2,5,6,8,e', Knossos
+'0,1,2,4,5,e', Ariadne
+'1,2,4,5,8,e', Minotaurus
+'2,4,5,8,e,h', Theseus
+'1,2,4,6,8,e', Megaron
+'1,2,4,5,7,8', Kreta
+'0,3,4,5,h,j', Workshop 1
+'0,5,8,h,j,k', Workshop 3
+];
