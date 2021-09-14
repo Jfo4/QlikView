@@ -1,0 +1,58 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep='.';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='#.##0,00 kr;-#.##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+// number.txt is a list of 1440 .gif files in the folder
+Number:
+Load @1 As File
+From C:\Jfo\Sudoku\old\1440\number.txt
+(txt, codepage is 1252, no labels, delimiter is ' ', no quotes);
+
+Let rows = NoOfRows('Number') - 1;
+
+// Read pictures (.gif) and create a Row counter (later used in the bundle load)
+For i = 0 To $(rows)
+  Let Name = Peek('File', $(i), 'Number');
+  Sudoku:
+  Load 'C:\Jfo\Sudoku\old\1440\$(Name).gif' As FileName,
+       Num(FileSize('C:\Jfo\Sudoku\old\1440\$(Name).gif')) As Size,
+       $(Name) As Puzzle,
+       $(i) + 1 As Row
+  AutoGenerate 1;       
+Next
+
+// Read .gif files for sizes in pixels
+For i = 0 To $(rows)
+  Let Name = Peek('File', $(i), 'Number');
+  XY:
+  First 1
+  Load '$(Name)' As N,
+       Ord([@8:8]) * 256 + Ord([@7:7]) As X,
+       Ord([@10:10]) * 256 + Ord([@9:9]) As Y
+  From 'C:\Jfo\Sudoku\old\1440\$(Name).gif'
+  (fix, codepage is 1252);
+Next
+
+Left Join (Sudoku)
+Load N As Puzzle,
+     X & 'x' & Y As XY
+Resident XY;
+
+Drop Table XY;
+Drop Table Number;
+
+// Load pictures, Row for info-view in listbox
+Pics:
+Bundle
+Load Row,
+     FileName As F
+Resident Sudoku;
+
+Drop Field FileName;
