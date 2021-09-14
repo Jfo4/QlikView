@@ -1,0 +1,176 @@
+Sub Sudoku()
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    Application.Calculation = xlCalculateManual
+    Dim i, vCol, vRow, SudokuSize As Integer
+    Dim Given, Pattern, vCell, vSudoku, vSudokuH, vSudokuV As String
+    Dim C As String 'Colors for puzzle numbers
+    C = "064504410708032248"
+    '6=Yellow
+    '45=Orange
+    '4=Green
+    '33=Blue
+    '7=Magenta
+    '8=Cyan
+    '3=Red
+    '22=Pink
+    '48=Gray
+     'Size of Sudoku?
+    Sheets("In").Select
+    SudokuSize = Sqr(Len(Cells(1, 1).Value)) '5x5 - 10x10
+    ' Get 12 Given & Patterns
+    For i = 1 To 12
+        Sheets("In").Select
+
+        Given = Cells(i, 1).Value
+        'MsgBox i & vbCrLf & Given
+        Pattern = Cells(i, 3).Value
+        'MsgBox i & vbCrLf & Pattern
+        Sheets("Work").Select
+        If i = 0 Then
+                '2 and 240 for cells with 36 pixels for each wall
+                'Make "\" for diagonal sudoku
+                ActiveSheet.Shapes.AddConnector(msoConnectorStraight, 2, 2, 240, 240).Select
+                With Selection.ShapeRange.Line
+                                .DashStyle = msoLineDash
+                                .ForeColor.ObjectThemeColor = msoThemeColorText1
+                End With
+                'Make "/" for diagonal sudoku
+                ActiveSheet.Shapes.AddConnector(msoConnectorStraight, 240, 2, 2, 240).Select
+                With Selection.ShapeRange.Line
+                                .DashStyle = msoLineDash
+                                .ForeColor.ObjectThemeColor = msoThemeColorText1
+                End With
+        End If
+        Range("A1").Select
+        'Clear the grid
+        Range(ActiveCell, ActiveCell.Offset(SudokuSize - 1, SudokuSize - 1)).Select
+        With Selection.Borders(xlEdgeLeft)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThick
+        End With
+        With Selection.Borders(xlEdgeTop)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThick
+        End With
+        With Selection.Borders(xlEdgeBottom)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThick
+        End With
+        With Selection.Borders(xlEdgeRight)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThick
+        End With
+        With Selection.Borders(xlInsideVertical)
+            .LineStyle = xlDash
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThin
+        End With
+        With Selection.Borders(xlInsideHorizontal)
+            .LineStyle = xlDash
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThin
+        End With
+        'Loop every cell for SudokuSize given and patterns
+        For vCol = 1 To SudokuSize
+          For vRow = 1 To SudokuSize
+            vCell = Mid(Given, (vRow - 1) * SudokuSize + vCol, 1)
+            If vCell = "a" Then vCell = 0
+            If vCell <> "." Then
+              Cells(vRow, vCol).Value = vCell
+            Else
+              Cells(vRow, vCol).Value = ""
+            End If
+            Cells(vRow, vCol).Select
+            vSudoku = Mid(Pattern, (vRow - 1) * SudokuSize + vCol, 1)
+             'Color by puzzle number
+             Selection.Interior.ColorIndex = CInt(Mid(C, (vSudoku - 1) * 2 + 1, 2))
+            vSudokuH = Mid(Pattern, (vRow - 1) * SudokuSize + vCol + 1, 1)
+            vSudokuV = Mid(Pattern, (vRow - 1) * SudokuSize + SudokuSize + vCol, 1)
+            If vSudoku <> vSudokuH Then
+                  With Selection.Borders(xlEdgeRight)
+                       .LineStyle = xlContinuous
+                       .ColorIndex = xlAutomatic
+                       .TintAndShade = 0
+                       .Weight = xlThick
+                  End With
+            End If
+            If vSudoku <> vSudokuV Then
+                  With Selection.Borders(xlEdgeBottom)
+                       .LineStyle = xlContinuous
+                       .ColorIndex = xlAutomatic
+                       .TintAndShade = 0
+                       .Weight = xlThick
+                  End With
+            End If
+          Next vRow
+        Next vCol
+        ' Pieces wrap around edges?
+        For vCol = 1 To SudokuSize
+            ' Column wrap?
+            Cells(1, vCol).Select
+            Range(ActiveCell, ActiveCell.Offset(SudokuSize - 1, 0)).Select
+            vSudoku = Mid(Pattern, vCol, 1)
+            'vSudokuH = Mid(Pattern, (vRow - 1) * SudokuSize + vCol + 1, 1)
+            vSudokuV = Mid(Pattern, SudokuSize * SudokuSize - (SudokuSize - vCol), 1)
+            ' Same piece top and bottom: wrapped piece.
+            If vSudoku = vSudokuV Then
+                  With Selection.Borders(xlEdgeTop)
+                       .LineStyle = xlDash
+                       .ColorIndex = xlAutomatic
+                       .TintAndShade = 0
+                       .Weight = xlThin
+                  End With
+                  With Selection.Borders(xlEdgeBottom)
+                       .LineStyle = xlDash
+                       .ColorIndex = xlAutomatic
+                       .TintAndShade = 0
+                       .Weight = xlThin
+                  End With
+            End If
+            ' Row wrap?
+            Cells(vCol, 1).Select
+            Range(ActiveCell, ActiveCell.Offset(0, SudokuSize - 1)).Select
+            vSudoku = Mid(Pattern, (vCol - 1) * SudokuSize + 1, 1)
+            vSudokuH = Mid(Pattern, vCol * SudokuSize, 1)
+            ' Same piece top and bottom: wrapped piece.
+            If vSudoku = vSudokuH Then
+                  With Selection.Borders(xlEdgeLeft)
+                       .LineStyle = xlDash
+                       .ColorIndex = xlAutomatic
+                       .TintAndShade = 0
+                       .Weight = xlThin
+                  End With
+                  With Selection.Borders(xlEdgeRight)
+                       .LineStyle = xlDash
+                       .ColorIndex = xlAutomatic
+                       .TintAndShade = 0
+                       .Weight = xlThin
+                  End With
+            End If
+        Next vCol
+        Range("A1").Select
+        Range(ActiveCell, ActiveCell.Offset(SudokuSize - 1, SudokuSize - 1)).Select
+        Selection.Copy
+        Sheets("Ut").Select
+        Cells(1 + (i - 1) * (SudokuSize + 1), 1).Select
+        ActiveSheet.Paste
+    Next i
+    Range("A1").Select
+    Sheets("Work").Cells.ClearContents
+    Sheets("Work").Select
+    Range("A1").Select
+    Application.Calculation = xlAutomatic
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+End Sub
