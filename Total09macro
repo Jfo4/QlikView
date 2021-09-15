@@ -1,0 +1,419 @@
+Function Grid2piece(t)
+  Dim b(9)
+  For i = 1 To 9
+    b(i) = ""
+  Next
+  For y = 1 To 9
+    For x = 1 To 9
+      bit = Mid(t, (y-1) * 9 + x , 1)
+      b(bit) = b(bit) & y-1 & x-1
+'      b(bit) = b(bit) & "{" & x-1 & "," & y-1 & "},"
+'      bit = Mid(t, (y - 1) * 8 + x, 1)
+'      b(bit) = b(bit) & "{" & x-1 & "," & y-1 & "},"
+    Next
+  Next
+  R = ""
+  For i = 1 To 9
+    R = R & b(i) & ";"
+  Next
+'  Grid2piece = Replace(R, " ,", "")
+  Grid2piece = R
+End Function
+
+Function FlipRot(t)
+  Dim Grid, RS, FR, R
+  Grid = t
+  RS = Sqr(Len(Grid))
+  FR = 0
+
+  ' 180 degree rotation
+  R = StrReverse(Grid)
+  If Comp(Grid, R, RS) > 0 Then FR = FR + 1
+
+  ' Vertical flip, left<->right
+  R = ""
+  For y = 0 To 8
+    For x = 9 To 1 Step -1
+      R = R & Mid(Grid, y * 9 + x, 1)
+    Next
+  Next
+  If Comp(Grid, R, RS) > 0 Then FR = FR + 2
+
+  ' Horizontal flip, up<->down
+  R = ""
+  For y = 8 To 0 Step -1
+    For x = 1 To 9
+      R = R & Mid(Grid, y * 9 + x, 1)
+    Next
+  Next
+  If Comp(Grid, R, RS) > 0 Then FR = FR + 4
+'  R1 = R
+'  For i = 1 To Sqr(Len(R))
+'    Rp = Left(R1, 1)
+'    R = Replace(R, Rp, Chr(i+96))
+'    R1 = Replace(R1, Rp, "")
+'  Next
+'  For i = 1 To Sqr(Len(R))
+'    R = Replace(R, Chr(i+96), i)
+'  Next
+
+  
+'  ' Vertical flip, left<->right
+'  R = Grid
+'  R1 = R
+'  For i = 1 To Sqr(Len(R))
+'    Rp = Left(R1, 1)
+'    R = Replace(R, Rp, Chr(i+96))
+'    R1 = Replace(R1, Rp, "")
+'  Next
+'  For i = 1 To Sqr(Len(R))
+'    R = Replace(R, Chr(i+96), i)
+'  Next
+'  
+'  ' Horizontal flip, up<->down
+'  R = Grid
+'  R1 = R
+'  For i = 1 To Sqr(Len(R))
+'    Rp = Left(R1, 1)
+'    R = Replace(R, Rp, Chr(i+96))
+'    R1 = Replace(R1, Rp, "")
+'  Next
+'  For i = 1 To Sqr(Len(R))
+'    R = Replace(R, Chr(i+96), i)
+'  Next  
+  FlipRot = FR
+End Function
+
+Function Rev(t)
+  R = StrReverse(t)
+  R1 = R
+  For i = 1 To Sqr(Len(R))
+    Rp = Left(R1, 1)
+    R = Replace(R, Rp, Chr(i+96))
+    R1 = Replace(R1, Rp, "")
+  Next
+  For i = 1 To Sqr(Len(R))
+    R = Replace(R, Chr(i+96), i)
+  Next
+  Rev = R
+End Function
+
+Function Repl(t)
+  R = Replace(t, ".", "0")
+  For i = 1 To Sqr(Len(R))
+    R = Replace(R, i, 1)
+  Next 
+  Repl = R
+End Function
+
+Function Rev2(t2)
+  R2 = StrReverse(t2)
+  Rev2 = R2
+End Function
+
+Function Comp(g, t, Rlen)
+  Rcomp = g
+  R = t
+  R1 = R
+  ' Rename 1-9 to a-i, sorted
+  For i = 1 To Rlen
+    Rp = Left(R1, 1)
+    R = Replace(R, Rp, Chr(i+96))
+    R1 = Replace(R1, Rp, "")
+  Next
+  ' Rename a-i to 1-9
+  For i = 1 To Rlen
+    R = Replace(R, Chr(i+96), i)
+  Next
+  Comp = InStr(Rcomp, R)
+End Function
+
+Sub PasteObj(XLSheet, po)
+'  ActiveDocument.GetSheetObject("namn på objektet").CopyTextToClipboard 'Typ
+'  Application.WaitForIdle
+'  XLSheet.Paste XLSheet.Range("klistra in i cell")
+  Dim s, obj, cell, typ
+  s = Split(po, ",")
+  obj = Trim(s(0))
+  cell = Trim(s(1))
+  typ = Trim(LCase(Left(s(2), 2)))
+  Select Case typ
+  Case "ta"
+    ActiveDocument.GetSheetObject(obj).CopyTableToClipboard True
+  Case "te"
+    ActiveDocument.GetSheetObject(obj).CopyTextToClipboard
+  Case "bi"
+      ActiveDocument.GetSheetObject(obj).CopyBitmapToClipboard
+  Case "va", "vä"
+    ActiveDocument.GetSheetObject(obj).CopyValuesToClipboard 
+  Case Else
+    Msgbox "Felaktig eller utelämnad typ"
+  End Select
+  Application.WaitForIdle
+  XLSheet.Paste XLSheet.Range(cell) 'Placering i arket
+End Sub
+
+Sub ToXL
+  Set objExcelApp = CreateObject("Excel.Application")
+  objExcelApp.Visible = True
+  objExcelApp.DisplayAlerts = False
+  Set objExcelDoc = objExcelApp.Workbooks.Add
+  Set XLSheet = objExcelApp.Worksheets.Add
+  'Behåll endast ett ark
+    Do  
+    SheetsCount = objExcelDoc.Sheets.Count
+    If SheetsCount = 1 Then
+      Exit Do
+    Else
+      objExcelDoc.Sheets(SheetsCount).Select
+      objExcelDoc.ActiveSheet.Delete 'Ta bort alla tomma flikar
+    End If
+  Loop  
+  PasteObj XLSheet, "CH03,A1,table"
+  PasteObj XLSheet, "CH04,D1,table"
+  PasteObj XLSheet, "CH02,G1,table"
+  
+  Set objRange = XLSheet.Range("A1","Z1").EntireColumn 'Justera tabellerna
+  'Ändra typsnitt, storlek och anpassa kolumnbredd
+  objRange.Font.Name = "Arial"
+  objRange.Font.Size = 12
+  objRange.WrapText = False
+  objRange.Columns("A:Z").AutoFit
+  XLSheet.Name = "Tables" 'Fliknamn
+
+  LastRow = XLSheet.Range("A1").CurrentRegion.Rows.Count 'Hur många rader används i kolumn A1?
+   If LastRow > 21 Then LastRow = 21 'Maximera till 20 rader + rubrik
+   Set objRange = XLSheet.Range("A1:B" & LastRow) 'Område för graf 1
+   objRange.Select
+   Set colCharts = objExcelApp.Charts
+   colCharts.Add()
+   Set objChart = colCharts(1) 'Skapa flik för graf 1
+   objChart.Activate
+   objChart.HasLegend = False 'Ta bort förklaring
+   objChart.ChartType = 51 'Graftyp
+   objChart.Name = "Pieces" 'Byt namn på arket
+     objChart.SeriesCollection(1).Format.Line.ForeColor.SchemeColor = 2
+     objChart.SeriesCollection(1).Format.Fill.ForeColor.SchemeColor = 3
+     objChart.PlotArea.Fill.Visible = False
+     objChart.ChartArea.Fill.Visible = True
+     objChart.ChartArea.Fill.ForeColor.SchemeColor = 24
+     objChart.ChartArea.Fill.BackColor.SchemeColor = 3
+     objChart.ChartArea.Fill.TwoColorGradient 1,2
+     objChart.ChartTitle.Font.ColorIndex = 5
+   If LastRow < 20 Then
+     objChart.ChartTitle.Text = LastRow - 1 & " branscher" 'Rubrik i grafen
+   Else
+     objChart.ChartTitle.Text = "Top 20 pieces" 'Rubrik i grafen
+   End If
+   objChart.ApplyDataLabels 'Lägg till värden i grafen
+   objExcelDoc.Worksheets("Tables").Activate
+
+  LastRow = XLSheet.Range("D1").CurrentRegion.Rows.Count
+   If LastRow > 21 Then LastRow = 21
+   Set objRange = XLSheet.Range("D1:E" & LastRow)
+   objRange.Select
+   Set colCharts = objExcelApp.Charts
+   colCharts.Add()
+   Set objChart = colCharts(2) 'Skapa flik för graf 2
+   objChart.Activate
+   objChart.HasLegend = False
+   objChart.ChartType = 58
+   objChart.Name = "Unique pieces"
+   objChart.ChartTitle.Delete 'Ta bort titeln i grafen
+   objChart.ApplyDataLabels
+   objExcelDoc.Worksheets("Tables").Activate
+
+'  LastRow = XLSheet.Range("G1").CurrentRegion.Rows.Count
+'   If LastRow > 21 Then LastRow = 21
+'   Set objRange = XLSheet.Range("G1:H" & LastRow) 'Graf 3, max 20 värden
+'   objRange.Select
+'   Set colCharts = objExcelApp.Charts
+'   colCharts.Add()
+'   Set objChart = colCharts(3) 'Skapa flik för graf 3
+'   objChart.Activate
+'   objChart.HasLegend = False
+'   objChart.ChartType = 57
+'   objChart.Name = "Län"
+'   objChart.ChartTitle.Delete
+'   objChart.ApplyDataLabels
+  'Ny flik
+  Set XLSheet = objExcelApp.Worksheets.Add
+  PasteObj XLSheet, "textruta,A1,text"
+  PasteObj XLSheet, "bild,A3,bild"
+  PasteObj XLSheet, "graf,A22,bild"
+  PasteObj XLSheet, "CH04,A36,värden"
+
+  Set objRange = XLSheet.Range("A1","Z1").EntireColumn 'Justera tabellerna
+  'Ändra typsnitt, storlek och anpassa kolumnbredd
+  objRange.Font.Name = "Consolas"
+  objRange.Font.Size = 12
+  objRange.WrapText = False
+  objRange.Columns("A:Z").AutoFit
+  XLSheet.Name = "TEST" 'Fliknamn
+  objExcelApp.Worksheets("TEST").Move ,objExcelApp.Worksheets(objExcelApp.Worksheets.Count) 'Flytta fliken sist
+  Set objRange = XLSheet.Range("A1").EntireRow
+  objExcelDoc.Worksheets("TEST").Range("A1").Select
+  objRange.WrapText = True
+  objRange.Font.Name = "Bodoni MT Black"
+  objRange.Font.Size = 36
+  objRange.Rows("1").AutoFit
+  Set objRange = XLSheet.Range("A1")
+  objRange.Interior.ColorIndex = 6
+  objRange.Font.ColorIndex = 3
+  'Startläge
+  objExcelDoc.Worksheets("Tables").Activate 'Startflik
+  'Set objRange = XLSheet.Range("H1").EntireColumn
+  'objRange.Delete 'Ta bort kolumnen
+  objExcelDoc.Worksheets("Tables").Range("A1").Select
+'  Excel_DeleteBlankSheets objExcelDoc 'Ta bort blanka flikar
+  MsgBox "The report is ready." & VbCrLf & "Switch to Excel to save it."
+End Sub
+
+'Private Sub Excel_DeleteBlankSheets(ByRef objExcelDoc)
+'  For Each ws In objExcelDoc.Worksheets
+'    If (Not HasOtherObjects(ws)) Then
+'      If objExcelDoc.Application.WorksheetFunction.CountA(ws.Cells) = 0 Then
+'        On Error Resume Next
+'        Call ws.Delete()
+'      End If
+'    End If
+'  Next
+'End Sub
+
+'Private Function HasOtherObjects(ByRef objSheet) 'As Boolean
+'  If (objSheet.ChartObjects.Count > 0) Then
+'    HasOtherObjects = True
+'    Exit function
+'  End If
+'  If (objSheet.Pictures.Count > 0) Then
+'    HasOtherObjects = True
+'    Exit function
+'  End If
+'  If (objSheet.Shapes.Count > 0) Then
+'    HasOtherObjects = True
+'    Exit function
+'  End If
+'  HasOtherObjects = False
+'End Function
+
+'None = -4142
+'Black = 1
+'White = 2
+'Red = 3
+'BrightGreen = 4
+'Blue = 5
+'Yellow = 6
+'Magenta = 7
+'Cyan = 8
+'DarkRed = 9
+'Green = 10
+'DarkBlue = 11
+'DarkYellow = 12
+'Violet = 13
+'Teal = 14
+'Grey25 = 15
+'Grey50 = 16
+'Lilac = 17
+'Cream = 19
+'DarkViolet = 21
+'Pink = 22
+'MidBlue = 23
+'PaleLavender = 24
+'SkyBlue = 33
+'LightCyan = 34
+'LightGreen = 35
+'LightYellow = 36
+'PaleBlue = 37
+'Rose = 38
+'Lavender = 39
+'Tan = 40
+'LightBlue = 41
+'Aqua = 42
+'Lime = 43
+'Gold = 44
+'LightOrange = 45
+'Orange = 46
+'BlueGrey = 47
+'Grey40 = 48
+'DarkTeal = 49
+'SeaGreen = 50
+'DarkGreen = 51
+'Olive = 52
+'Brown = 53
+'Plum = 54
+'Indigo = 55
+'Grey80 = 56
+ 
+'-4169 Scatter.
+'-4151 Radar.
+'-4120 Doughnut.
+'-4102 3D Pie.
+'-4101 3D Line.
+'-4100 3D Column.
+'-4098 3D Area.
+'    1 Area
+'    4 Line.
+'    5 Pie.
+'   15 Bubble.
+'   51 Clustered Column.
+'   52 Stacked Column.
+'   53 100% Stacked Column.
+'   54 3D Clustered Column.
+'   55 3D Stacked Column.
+'   56 3D 100% Stacked Column.
+'   57 Clustered Bar.
+'   58 Stacked Bar.
+'   59 100% Stacked Bar.
+'   60 3D Clustered Bar.
+'   61 3D Stacked Bar.
+'   62 3D 100% Stacked Bar.
+'   63 Stacked Line.
+'   64 100% Stacked Line.
+'   65 Line with Markers.
+'   66 Stacked Line with Markers.
+'   67 100% Stacked Line with Markers.
+'   68 Pie of Pie.
+'   69 Exploded Pie.
+'   70 Exploded 3D Pie.
+'   71 Bar of Pie.
+'   72 Scatter with Smoothed Lines.
+'   73 Scatter with Smoothed Lines and No Data Markers.
+'   74 Scatter with Lines.
+'   75 Scatter with Lines and No Data Markers.
+'   76 Stacked Area.
+'   77 100% Stacked Area.
+'   78 3D Stacked Area.
+'   79 100% Stacked Area.
+'   80 Exploded Doughnut.
+'   81 Radar with Data Markers.
+'   82 Filled Radar.
+'   83 3D Surface.
+'   84 3D Surface (wireframe).
+'   85 Surface (Top View).
+'   86 Surface (Top View wireframe).
+'   87 Bubble with 3D effects.
+'   88 High-Low-Close.
+'   89 Open-High-Low-Close.
+'   90 Volume-High-Low-Close.
+'   91 Volume-Open-High-Low-Close.
+'   92 Clustered Cone Column.
+'   93 Stacked Cone Column.
+'   94 100% Stacked Cylinder Column.
+'   95 Clustered Cylinder Bar.
+'   96 Stacked Cylinder Bar.
+'   97 100% Stacked Cylinder Bar.
+'   98 3D Cylinder Column.
+'   99 Clustered Cone Column.
+'  100 Stacked Cone Column.
+'  101 100% Stacked Cone Column.
+'  102 Clustered Cone Bar.
+'  103 Stacked Cone Bar.
+'  104 100% Stacked Cone Bar.
+'  105 3D Cone Column.
+'  106 Clustered Pyramid Column.
+'  107 Stacked Pyramid Column.
+'  108 100% Stacked Pyramid Column.
+'  109 Clustered Pyramid Bar.
+'  110 Stacked Pyramid Bar.
+'  111 100% Stacked Pyramid Bar.
+'  112 3D Pyramid Column.
