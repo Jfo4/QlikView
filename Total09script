@@ -1,0 +1,103 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep=' ';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='# ##0,00 kr;-# ##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+//FR:
+//Mapping
+//Load * Inline [
+//No, Name
+//1, R
+//2, V
+//3, RV
+//4, H
+//5, RH
+//6, VH
+//7, RVH
+//];
+
+//Total09:
+//Load RecNo() As Row,
+////     ApplyMap('FR', FlipRot(Grid), 'No') As RG,
+//     Mid(Grid, 1, 9) As G1,
+//     Mid(Grid, 10, 9) As G2,
+//     Mid(Grid, 19, 9) As G3,
+//     Mid(Grid, 28, 9) As G4,
+//     Mid(Grid, 37, 9) As G5,
+//     Mid(Grid, 46, 9) As G6,
+//     Mid(Grid, 55, 9) As G7,
+//     Mid(Grid, 64, 9) As G8,
+//     Mid(Grid, 73, 9) As G9,
+//     Bits2,
+//     (Len(Bits2)+1)/5 As L2
+//From [C:\Jfo\Sudoku\09\09 Total Nonomino.xlsx]
+//(ooxml, embedded labels, header is 12 lines, table is In);
+//
+//Store Total09 Into Total09.qvd;
+//
+//For i = 1 To 9
+//  Pieces:
+//  Load Distinct Row,
+//       Mid(Bits2, ($(i)-1)*5+1, 4) As B1
+//  Resident Total09
+//  Where L2 >= $(i);
+//Next
+//
+//Store Pieces Into Pieces.qvd;
+
+Total09:
+//First 50
+Load Row, 
+     G1, 
+     G2, 
+     G3, 
+     G4, 
+     G5, 
+     G6, 
+     G7, 
+     G8, 
+     G9, 
+     Bits2, 
+     L2
+From Total09.qvd (qvd);
+
+PiecesAND:
+Load Distinct Row, 
+     B1 As B_and
+From Pieces.qvd (qvd)
+Where Exists(Row);
+
+// Duplicate by number suffix, position 4 (Adx2)
+For i = 1 To 6
+  PiecesOR:
+  Load Row, 
+       Left(B1, 3) As B_or
+  From Pieces.qvd (qvd)
+  Where Exists(Row) And Mid(B1, 4) >= $(i);
+Next
+
+// Complexity
+tmp:
+Load Row,
+     B_or As Name
+Resident PiecesOR;
+
+Left Join (tmp)
+Load K, 
+     Name
+From C:\Jfo\Sudoku\09\9x9_180.xlsx
+(ooxml, embedded labels, table is Grid);
+
+K:
+Load Row,
+     Sum(K) As Kompl
+Resident tmp
+Group By Row;
+
+Drop Table tmp;
