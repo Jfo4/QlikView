@@ -1,0 +1,97 @@
+Function SandW(s, a, b)
+  tmp = Replace(Replace(s, a, "a"), b, "b")
+  s = Sqr(Len(tmp))
+  For i = 1 To s
+    tmp = Replace(tmp, i, ".")
+  Next
+  z = 0
+  For y = 0 To s - 1
+    For x = 1 To s - 1
+      If Mid(tmp, y * s + x, 1) <> "." And Mid(tmp, y * s + x + 1, 1) <> "." Then z = z + 1
+      If y < s - 1 Then
+        If Mid(tmp, y * s + x, 1) <> "." And Mid(tmp, (y + 1) * s + x, 1) <> "." Then z = z + 1
+        If x = s - 1 And Mid(tmp, y * s + s, 1) <> "." And Mid(tmp, (y + 1) * s + s, 1) <> "." Then z = z + 1
+      End If
+    Next
+  Next
+  w = 0
+  For y = 1 To s
+    If Mid(tmp, y, 1) <> "." And Mid(tmp, y + (s * s) - s, 1) <> "." Then w = w + 1 'First/Last row
+    If Mid(tmp, (y - 1) * s + 1, 1) <> "." And Mid(tmp, (y - 1) * s + s, 1) <> "." Then w = w + 1 'First/Last col
+  Next
+  tmp = tmp & ";" & Cstr(z) & ";" & Cstr(w)
+  SandW = tmp
+End Function
+
+Sub Change
+  given = ActiveDocument.GetVariable("g").GetContent.String
+  'given = ActiveDocument.GetVariable("s").GetContent.String
+  size = ActiveDocument.Fields("Size").GetPossibleValues.Item(0).Text
+  c_low = Left(ActiveDocument.Fields("R").GetPossibleValues.Item(0).Text, 1)
+  c_high = Right(ActiveDocument.Fields("R").GetPossibleValues.Item(0).Text, 1)
+  given = Replace(Replace(given, c_low, "a"), c_high, "b")
+  given = Replace(Replace(given, 1, c_low), size, c_high)
+  given = Replace(Replace(given, "a", 1), "b", size)
+  ActiveDocument.Variables("n").SetContent given, True
+End Sub
+
+Function Check(f)
+  Dim v(9), h(9)
+  size = CInt(Sqr(Len(f)))
+  'Clear column and lines
+  For c = 1 To size
+    v(c) = ""
+    h(c) = ""
+  Next
+
+  'Create vertical and horizontal number series
+  'v(1) is vertical column 1
+  'h(1) is horizontal line 1
+  For y = 1 To size
+    For x = 1 To size
+      v(x) = v(x) & CStr(Mid(f, (y - 1) * size + x, 1))
+      h(x) = h(x) & CStr(Mid(f, (x - 1) * size + y, 1))
+    Next
+  Next
+
+  vline = ""
+  For i = 1 To size
+    low = InStr(v(i), "1")
+    high = InStr(v(i), size)
+    lo = low
+    hi = high
+    If low > high Then
+      lo = high
+      hi = low
+    End If
+    ver = 0
+    For j = lo To hi
+      ver = ver + CInt(Mid(v(i), j, 1))
+    Next
+    ver = ver - (size + 1) '1 And size(max)
+    vline = vline & CStr(ver)
+    If i < size Then vline = vline & ","
+  Next
+
+  hline = ""
+  For i = 1 To size
+    low = InStr(h(i), "1")
+    high = InStr(h(i), size)
+    lo = low
+    hi = high
+    If low > high Then
+      lo = high
+      hi = low
+    End If
+    hor = 0
+    For j = lo To hi
+      hor = hor + CInt(Mid(h(i), j, 1))
+    Next
+    hor = hor - (size + 1) '1 And 9
+    hline = hline & CStr(hor)
+    If i < size Then hline = hline & ","
+  Next
+
+  R = vline & ":" & hline
+  Check = R
+End Function
