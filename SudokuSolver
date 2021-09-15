@@ -1,0 +1,210 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep=' ';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='# ##0,00 kr;-# ##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+Sudoku:
+Load Distinct Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\Sudoku.xlsx]
+(ooxml, embedded labels, table is InSudoku);
+
+Concatenate
+Load Sudoku As Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\3x100sudoku.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Sudoku) = 81;// And Not Exists(Puzzle, Sudoku);
+
+//Concatenate
+//Load Puzzle,
+//     RowNo() As Nr,
+//     RecNo() As FileNr,
+//     FileBaseName() As File
+//From [C:\Jfo\Sudoku\jigsaw 9x9\Sudoku112.xlsx]
+//(ooxml, embedded labels, table is In)
+//Where Len(Puzzle) = 81 And Not Exists(Puzzle);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\Extreme Sudoku.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Concatenate
+Load F7 As Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\Su-Doku 2006.xlsx]
+(ooxml, embedded labels, header is 13 lines, table is Input)
+Where Len(F7) = 81;// And Not Exists(Puzzle, F7);
+
+//Concatenate
+//Load A As Puzzle,
+//     RowNo() As Nr,
+//     RecNo() As FileNr,
+//     FileBaseName() As File
+//From [C:\Jfo\Sudoku\jigsaw 9x9\Sudoku2006Vecka.xlsx]
+//(ooxml, no labels, table is In)
+//Where Len(A) = 81;// And Not Exists(Puzzle, A);
+
+Concatenate
+Load A As Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\Japan5.xlsx]
+(ooxml, no labels, table is In)
+Where Len(A) = 81;// And Not Exists(Puzzle, A);
+
+Concatenate
+Load Sudoku As Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\09\09 Suexg.xlsx]
+(ooxml, embedded labels, table is Sheet4)
+Where Len(Sudoku) = 81;// And Not Exists(Puzzle, Sudoku);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\Hardest.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\MinGW\bin\all_17_clue_sudokus.txt]
+(txt, codepage is 1252, embedded labels, delimiter is '\t', no quotes)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\SFA2009-2.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\SMAG2009-1.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\SMF2009-1.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\SF2009-1.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\100Sudoku.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\SudokuFörProffs.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Concatenate
+Load Puzzle,
+     RowNo() As Nr,
+     RecNo() As FileNr,
+     FileBaseName() As File
+From [C:\Jfo\Sudoku\jigsaw 9x9\StoraBoken.xlsx]
+(ooxml, embedded labels, table is In)
+Where Len(Puzzle) = 81;// And Not Exists(Puzzle);
+
+Left Join (Sudoku)
+Load Nr,
+     81 - Len(KeepChar(Puzzle, '.')) As Given
+Resident Sudoku;
+
+Store Puzzle From Sudoku Into C:\Jfo\MinGW\Bin\given.txt (txt);
+
+Execute cmd /c "C:\Jfo\MinGW\Bin\BD.bat";
+
+Left Join (Sudoku)
+Load [@7:15] As Score, 
+     [@22:26] As Depth, 
+     Text([@27:n]) As Solution,
+     RecNo() As Nr
+From C:\Jfo\MinGW\bin\solution.txt
+(fix, codepage is 1252);
+
+For i = 1 To 81
+  Left Join(Sudoku)
+  Load Nr,
+       If(P$(i)='.', '', P$(i)) As P$(i),
+       S$(i)
+       ;
+  Load Nr,
+       Mid(Puzzle, $(i), 1) As P$(i),
+       Mid(Solution, $(i), 1) As S$(i)
+  Resident Sudoku;
+Next
+
+//For i = 0 To NoOfRows('In') - 1;
+//  Let n = Peek('Puzzle', $(i), 'In');
+//  P: Load '$(n)' As p AutoGenerate 1;
+//  Store P Into c:\jfo\given.txt (txt);
+//  Execute cmd /c "c:\jfo\solve_sudoku.bat";
+//  
+//  Solved:
+//  Load '$(i)' + 1 As Line,
+//       '$(n)' As Puzzle, 
+//       Now() As Time,
+//       @1 As Solution
+//  From [C:\Jfo\py_solve.txt]
+//  (txt, codepage is 1252, no labels, delimiter is '\t', no quotes);
+//  
+//  Drop Table P;
+//Next
+//
+//Drop Table In;
