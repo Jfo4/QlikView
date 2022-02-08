@@ -1,0 +1,63 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep='.';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='#.##0,00 kr;-#.##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+$(Include=used9.qvs)
+
+In:
+//First 50
+Load G, B, O, V, H
+From L9t.qvd (qvd);
+
+Concatenate (In)
+//First 50
+Load G, B, O, V, H
+From L9new1.qvd (qvd);
+
+Left Join(In)
+Load G,
+     Rand() As R1
+Resident In;
+
+Left Join(In)
+Load G,
+     RecNo() As R
+Resident In
+Order By R1;
+
+Drop Field R1;
+
+Left Join (In)
+Load G,
+     Nr
+Resident Used;
+
+UsedP:
+Load Distinct O As NP
+Resident In
+Where Nr > 0;
+
+UsedP1:
+Load Distinct O As PP
+Resident In
+Where Not Exists(NP, O);
+
+Left Join (UsedP1)
+Load PP, 
+     Rand() As NPR
+Resident UsedP1;
+
+NewP:
+Load PP As O,
+     RecNo() As P
+Resident UsedP1
+Order By NPR;
+
+Drop Table UsedP, UsedP1, Used;
