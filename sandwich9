@@ -1,0 +1,67 @@
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep='.';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='#.##0,00 kr;-#.##0,00 kr';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD hh:mm:ss[.fff]';
+SET MonthNames='jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec';
+SET DayNames='mån;tis;ons;tor;fre;lör;sön';
+
+G:
+Load Text(Row) As G Inline [
+Row
+...12...............8..9.5.2........5..2..........7..9..6...9.5....8...26.3.51...
+];
+
+Let g = Peek('G');
+Let n = Peek('G');
+Let vh = Floor(Rand() * 5) + 5 & ' ' & Floor(Rand() * 5) + 5;
+Let a = Floor(Rand() * 9) + 1;
+Let b = SubField('first,last', ',', Floor(Rand() * 2) + 1);
+
+Drop Table G;
+
+S:
+Load Text(Row) As S,
+     Check(Text(Row)) As VH // Vertical and horizontal sums
+Inline [
+Row
+614523978861394257728946315246731589157268493392857146589472631435189762973615824
+];
+
+Let S = Peek('S');
+Let V = SubField(Peek('VH'), ':', 1);
+Let H = SubField(Peek('VH'), ':', 2);
+
+//Let s = Peek('S');
+
+Sub SW(size)
+  For i1 = 1 To $(size) - 1
+    For i2 = i1 + 1 To $(size)
+      Sandwich:
+      Load Size,
+           R,
+           SubField(Replace(Replace(SW, 'a', '1'), 'b', '$(size)'), ';', 1) As S2,
+           SubField(SW, ';', 2) As Z,
+           SubField(SW, ';', 3) As Y
+           ;
+      Load $(size) As Size,
+           S,
+//           SubField(Replace(Replace(SandW(S, $(i1), $(i2)), 'a', '1'), 'b', '$(size)'), ';', 1) As S2,
+//           SubField(SandW(S, $(i1), $(i2)), ';', 2) As Z,
+//           SubField(SandW(S, $(i1), $(i2)), ';', 3) As Y,
+           SandW(S, $(i1), $(i2)) As SW, // temporary field used in preceding load
+           $(i1) & $(i2) As R
+      Resident S
+      Where Len(S) = $(size) * $(size); // Hept/Oct/Non-omino size
+    Next
+  Next
+End Sub
+
+//Call SW(7) // Heptomino
+//Call SW(8) // Octomino
+Call SW(9) // Nonomino
+
+Drop Table S;
