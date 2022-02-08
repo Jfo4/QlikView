@@ -1,0 +1,7 @@
+Sub CopyGrid
+  If ActiveDocument.Fields("G").GetPossibleValues.Count = 1 Then
+    ActiveDocument.GetSheetObject("TX01").CopyTextToClipboard
+  Else
+    MsgBox "More than one value. Try again!"
+  End If
+End Sub
